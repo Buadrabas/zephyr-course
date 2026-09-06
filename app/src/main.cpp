@@ -24,7 +24,7 @@ int main(void)
 
         led_state = !led_state;
         LOG_INF("LED state: %s", led_state ? "ON" : "OFF");
-        k_msleep(SLEEP_TIME_MS);
+        k_msleep(CONFIG_APP_HEARTBEAT_PERIOD_MS);
     }
     return 0;
 }

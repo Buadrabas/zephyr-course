@@ -1,5 +1,10 @@
 source "Kconfig.zephyr"
 
+config APP_HEARTBEAT_PERIOD_MS 
+    int "Fade duration (ms)"
+    range 100 2000
+    default 500
+
 menuconfig LED_SUBSYSTEM
     bool "LED Subsystem"
     default y
