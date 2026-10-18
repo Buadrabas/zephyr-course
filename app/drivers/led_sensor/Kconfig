@@ -1,0 +1,13 @@
+menuconfig LED_SENSOR
+    bool "Led Sensor"
+    default y
+    depends on DT_HAS_CUSTOM_LED_SENSOR_ENABLED
+    select GPIO
+    help
+      Enable the LED Sensor
+
+if LED_SENSOR
+config LED_SENSOR_INIT_PRIORITY
+	int "Init-Priorität"
+	default 90
+endif

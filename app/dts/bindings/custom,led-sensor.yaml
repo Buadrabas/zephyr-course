@@ -1,0 +1,8 @@
+description: Custom Led Sensor binding
+compatible: "custom,led-sensor"
+include: base.yaml
+
+properties: 
+  led-gpios:
+    type: phandle-array
+    required: true
