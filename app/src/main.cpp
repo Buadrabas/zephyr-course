@@ -1,3 +1,5 @@
+#include "led_sensor.h"
+#include <stdint.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/sensor.h>
@@ -20,6 +22,7 @@ static const struct device *get_led_sensor_device(void) {
   }
 
   printk("Found device \"%s\", getting sensor data\n", dev->name);
+  
   return dev;
 }
 
@@ -31,13 +34,30 @@ int main(void) {
     return 0;
   }
 
-  struct sensor_value temp;
+  uint32_t period = 0;
+
+  int ret = led_sensor_set_blink_period(dev, 500);
+
+  if (ret < 0) {
+    printk("led_sensor_set_blink_period failed: %d\n", ret);
+    return 0;
+  }
+
+  ret = led_sensor_get_blink_period(dev, &period);
+  if (ret < 0) {
+    printk("led_sensor_get_blink_period failed: %d\n", ret);
+    return 0;
+  }
+
+  printk("period value is now : %u\n", (uint16_t)period);
+
+  struct sensor_value value;
 
   while (true) {
 
     sensor_sample_fetch(dev);
-    k_msleep(200);
-    sensor_channel_get(dev, SENSOR_CHAN_POWER, &temp);
-    k_msleep(200);
+    k_msleep(period);
+    sensor_channel_get(dev, SENSOR_CHAN_POWER, &value);
+    k_msleep(period);
   }
 }

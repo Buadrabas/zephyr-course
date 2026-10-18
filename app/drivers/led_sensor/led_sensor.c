@@ -1,3 +1,4 @@
+#include <stdint.h>
 #define DT_DRV_COMPAT custom_led_sensor
 
 #include <zephyr/device.h>
@@ -5,8 +6,11 @@
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/logging/log.h>
 
+#include "led_sensor.h"
 
 LOG_MODULE_REGISTER(led_sensor, CONFIG_SENSOR_LOG_LEVEL);
+
+#define LED_SENSOR_DEFAULT_PERIOD_MS 1000
 
 struct led_sensor_config {
   struct gpio_dt_spec gpio;
@@ -15,6 +19,7 @@ struct led_sensor_config {
 struct led_sensor_data {
   const struct device *dev;
   bool ledStatus;
+  uint32_t blinkPeriodMs;
 };
 
 static int led_sensor_sample_fetch(const struct device *dev,
@@ -62,10 +67,38 @@ static int led_sensor_channel_get(const struct device *dev,
   return 0;
 }
 
-static DEVICE_API(sensor, led_sensor_api) = {
-    .channel_get = &led_sensor_channel_get,
-    .sample_fetch = &led_sensor_sample_fetch,
-};
+static int led_sensor_set_blinking_period(const struct device *dev,
+                                       uint32_t period_ms) {
+  struct led_sensor_data *data = dev->data;
+
+  if (period_ms == 0) {
+    return -EINVAL;
+  }
+
+  data->blinkPeriodMs = period_ms;
+  LOG_DBG("Blink period set to %u ms", period_ms);
+  return 0;
+}
+
+static int led_sensor_get_blinking_period(const struct device *dev,
+                                       uint32_t *period_ms) {
+  struct led_sensor_data *data = dev->data;
+
+  if (period_ms == NULL) {
+    return -EINVAL;
+  }
+
+  *period_ms = data->blinkPeriodMs;
+  return 0;
+}
+
+static const struct led_sensor_driver_api led_sensor_api = {
+    .base = {.channel_get = led_sensor_channel_get,
+             .sample_fetch = led_sensor_sample_fetch},
+.set_blinking_period = led_sensor_set_blinking_period,
+    .get_blinking_period = led_sensor_get_blinking_period
+}
+;
 
 static int led_sensor_init(const struct device *dev) {
   const struct led_sensor_config *config = dev->config;
