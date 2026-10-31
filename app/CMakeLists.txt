@@ -6,3 +6,4 @@ project(my_zephyr_app)
 
 target_sources(app PRIVATE src/main.cpp)
 add_subdirectory(drivers)
+include_directories(include/led_sensor)
