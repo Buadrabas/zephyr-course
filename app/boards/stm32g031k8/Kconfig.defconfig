@@ -1,0 +1,7 @@
+if BOARD_STM32G031K8
+
+config SPI_STM32_INTERRUPT
+	default y
+	depends on SPI
+
+endif
